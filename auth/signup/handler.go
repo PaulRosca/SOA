@@ -3,7 +3,6 @@ package function
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -37,10 +36,11 @@ func init() {
 }
 
 type User struct {
+	ID         int64  `json:"id"`
 	Email      string `json:"email"`
 	First_name string `json:"first_name"`
 	Last_name  string `json:"last_name"`
-	Password   string `json:"password"`
+	Password   string `json:"password,omitempty"`
 }
 
 type Claims struct {
@@ -83,6 +83,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user.ID = id
+
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
 		ID:    id,
@@ -102,6 +104,8 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		Value:   tokenString,
 		Expires: expirationTime,
 	})
+	user.Password = ""
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Successfully inserted new user %v", id)))
+	json.NewEncoder(w).Encode(user)
 }

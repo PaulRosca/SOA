@@ -37,15 +37,14 @@ func init() {
 
 type Credentials struct {
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password string `json:"password,omitempty"`
 }
 
 type User struct {
+	Credentials
 	ID         int64  `json:"id"`
-	Email      string `json:"email"`
 	First_name string `json:"first_name"`
 	Last_name  string `json:"last_name"`
-	Password   string `json:"password"`
 }
 
 type Claims struct {
@@ -93,11 +92,13 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	user.Password = ""
 	http.SetCookie(w, &http.Cookie{
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
 	})
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Successfully signed in!"))
+	json.NewEncoder(w).Encode(user)
 }
