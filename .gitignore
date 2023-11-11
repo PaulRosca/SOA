@@ -3,3 +3,5 @@
 template
 build
 .secrets
+.DS_Store
+go.work

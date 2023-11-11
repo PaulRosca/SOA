@@ -7,4 +7,7 @@ functions:
     lang: golang-middleware
     handler: ./signup
     image: localhost:5001/signup:latest
-
+  signin:
+    lang: golang-middleware
+    handler: ./signin
+    image: localhost:5001/signin:latest
