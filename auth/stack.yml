@@ -11,3 +11,7 @@ functions:
     lang: golang-middleware
     handler: ./signin
     image: localhost:5001/signin:latest
+  signout:
+    lang: golang-middleware
+    handler: ./signout
+    image: localhost:5001/signout:latest
