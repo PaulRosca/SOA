@@ -22,7 +22,14 @@ const authProxy = createProxyMiddleware({
   pathRewrite: {'^/auth' : '/function'}
 });
 
+const catalogProxy = createProxyMiddleware({
+  target: 'http://localhost:5555',
+  pathRewrite: {'^/catalog' : '/'}
+});
+
+
 server.use('/auth', authProxy);
+server.use('/catalog', catalogProxy);
 
 const PORT = 9000;
 server.listen(PORT, () => {
