@@ -1,0 +1,17 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway:  http://127.0.0.1:8080
+functions:
+  signup:
+    lang: golang-middleware
+    handler: ./auth/signup
+    image: localhost:6000/signup:latest
+  signin:
+    lang: golang-middleware
+    handler: ./auth/signin
+    image: localhost:6000/signin:latest
+  signout:
+    lang: golang-middleware
+    handler: ./auth/signout
+    image: localhost:6000/signout:latest

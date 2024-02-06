@@ -21,7 +21,7 @@ func init() {
 		User:   "root",
 		Passwd: "test1234",
 		Net:    "tcp",
-		Addr:   "10.96.134.26:3306",
+		Addr:   "mysql.default.svc.cluster.local:3306",
 		DBName: "auth",
 	}
 	db, err = sql.Open("mysql", cfg.FormatDSN())

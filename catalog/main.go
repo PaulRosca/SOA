@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,8 +31,18 @@ func getProductImage(c *gin.Context) {
 }
 
 func getProducts(c *gin.Context) {
+        qids := c.Query("ids")
+        ids := []any{}
+        var sb strings.Builder
+        sb.WriteString("SELECT id, title, description, category, stock, price FROM product WHERE stock > 0")
+        if qids != "" {
+                for _, id := range(strings.Split(qids, ",")) {
+                        ids = append(ids, id)
+                }
+                sb.WriteString(" AND id IN (?" + strings.Repeat(",?", len(ids) - 1) + ")")
+        }
 	products := make([]Product, 0)
-	rows, err := DB.Query("SELECT id, title, description, category, stock, price FROM product WHERE stock > 0")
+	rows, err := DB.Query(sb.String(), ids...)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, "Internal Server Error!")
 		return
@@ -94,5 +105,5 @@ func main() {
 	router.GET("/", getProducts)
 	router.POST("/", addProduct)
 
-	router.Run("localhost:5555")
+	router.Run("0.0.0.0:5555")
 }

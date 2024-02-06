@@ -18,12 +18,12 @@ server.use(cors());
 server.use(morgan('combined'));
 
 const authProxy = createProxyMiddleware({
-  target: 'http://localhost:8080',
+  target: 'http://gateway.openfaas:8080',
   pathRewrite: {'^/auth' : '/function'}
 });
 
 const catalogProxy = createProxyMiddleware({
-  target: 'http://localhost:5555',
+  target: 'http://catalog-service.default.svc.cluster.local.',
   pathRewrite: {'^/catalog' : '/'}
 });
 

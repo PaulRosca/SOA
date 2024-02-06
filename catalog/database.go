@@ -14,7 +14,7 @@ func connectDB() {
 		User:   "root",
 		Passwd: "test1234",
 		Net:    "tcp",
-		Addr:   "localhost:3306",
+		Addr:   "mysql.default.svc.cluster.local:3306",
 		DBName: "catalog",
 	}
 	DB, err = sql.Open("mysql", cfg.FormatDSN())

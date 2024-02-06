@@ -9,7 +9,3 @@ type Product struct {
 	Stock       int64   `json:"stock" form:"stock" binding:"required"`
 	image       []byte
 }
-
-var Products = []Product{
-	{ID: 1, Title: "Playstation 5", Category: "Gaming", Description: "The latest gaming console from Sony", Price: 499.99, Stock: 15},
-}
