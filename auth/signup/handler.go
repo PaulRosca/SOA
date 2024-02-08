@@ -103,6 +103,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
+		Path:    "/",
 	})
 	user.Password = ""
 	w.Header().Set("Content-Type", "application/json")

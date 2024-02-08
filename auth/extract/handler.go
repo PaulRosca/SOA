@@ -2,8 +2,8 @@ package function
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
-	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -18,12 +18,12 @@ type Claims struct {
 var jwtSecret = []byte("my_secret_key")
 
 func Handle(w http.ResponseWriter, r *http.Request) {
-	tokenCookie, err := r.Cookie("token")
+	byteData, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Cannot parse token", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	tokenString := strings.Split(tokenCookie.String(), "token=")[1]
+	tokenString := string(byteData)
 	claim := Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, &claim, func(t *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil
