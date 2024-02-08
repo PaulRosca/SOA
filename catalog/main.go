@@ -99,6 +99,7 @@ func addProduct(c *gin.Context) {
 
 func main() {
 	connectDB()
+	go setupConsumer()
 	router := gin.Default()
 
 	router.GET("/image/:id", getProductImage)
