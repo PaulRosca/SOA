@@ -7,6 +7,7 @@ import axios from "axios";
 import cookies from "cookie-parser";
 import { createProxyMiddleware, fixRequestBody } from "http-proxy-middleware";
 
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1500,
@@ -20,7 +21,7 @@ server.use(cors({ credentials: true, origin: "http://localhost:8099" }));
 server.use(morgan('combined'));
 server.use(cookies());
 server.use(express.json());
-server.use(express.urlencoded({ extended: true }));
+server.use(express.urlencoded({ extended: false }));
 
 const authProxy = createProxyMiddleware({
   target: 'http://gateway.openfaas:8080',
@@ -47,7 +48,7 @@ server.use(async (req: express.Request, res: express.Response, next: express.Nex
     req.body = {};
   }
   try {
-    console.log('Cookie', req.cookies.token);
+    console.log('Cookie', req.cookies.token, req.body, req.path);
     const resp = await axios.post('http://gateway.openfaas:8080/function/extract', req.cookies.token, { withCredentials: true });
     if (!req.body) {
       req.body = {};
@@ -55,6 +56,9 @@ server.use(async (req: express.Request, res: express.Response, next: express.Nex
     req.body.user = resp.data;
   } catch (err) {
     console.log(err);
+  }
+  if(req.originalUrl === '/catalog/' && req.method === "POST" && (!req.body || req.body.type !== "admin")) {
+    return res.status(401).json("Only admins can add products");
   }
   return next();
 });
