@@ -1,4 +1,3 @@
-import http from "http";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -17,7 +16,7 @@ const server = express();
 
 server.use(limiter);
 server.use(helmet());
-server.use(cors());
+server.use(cors({ credentials: true, origin: "http://localhost:8099" }));
 server.use(morgan('combined'));
 server.use(cookies());
 server.use(express.json());
@@ -48,12 +47,12 @@ server.use(async (req: express.Request, res: express.Response, next: express.Nex
     req.body = {};
   }
   try {
+    console.log('Cookie', req.cookies.token);
     const resp = await axios.post('http://gateway.openfaas:8080/function/extract', req.cookies.token, { withCredentials: true });
     if (!req.body) {
       req.body = {};
     }
     req.body.user = resp.data;
-    console.log("BODY", req.body, req.path);
   } catch (err) {
     console.log(err);
   }
