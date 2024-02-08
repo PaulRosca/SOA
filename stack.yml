@@ -15,3 +15,7 @@ functions:
     lang: golang-middleware
     handler: ./auth/signout
     image: localhost:6000/signout:latest
+  extract:
+    lang: golang-middleware
+    handler: ./auth/extract
+    image: localhost:6000/extract:latest

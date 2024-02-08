@@ -45,11 +45,13 @@ type User struct {
 	ID         int64  `json:"id"`
 	First_name string `json:"first_name"`
 	Last_name  string `json:"last_name"`
+	Type       string `json:"type"`
 }
 
 type Claims struct {
 	ID    int64  `json:"id"`
 	Email string `json:"email"`
+	Type  string `json:"type"`
 	jwt.RegisteredClaims
 }
 
@@ -64,7 +66,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 	var user User
 	row := db.QueryRow("SELECT * FROM user WHERE email = ?", credentials.Email)
-	if err := row.Scan(&user.ID, &user.Email, &user.First_name, &user.Last_name, &user.Password); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.First_name, &user.Last_name, &user.Password, &user.Type); err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Invalid email or password!", http.StatusUnauthorized)
 			return
@@ -82,6 +84,7 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	claims := &Claims{
 		ID:    user.ID,
 		Email: user.Email,
+		Type:  user.Type,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
