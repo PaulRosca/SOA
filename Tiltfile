@@ -3,10 +3,13 @@ update_settings ( max_parallel_updates = 3 , k8s_upsert_timeout_secs = 180 , sup
 k8s_yaml('mysql-secret.yaml')
 k8s_yaml('mysql-storage.yaml')
 k8s_yaml('mysql-deployment.yaml')
+k8s_yaml('kafka.yaml')
 k8s_yaml('./gateway/deployment.yaml')
 k8s_yaml('./catalog/deployment.yaml')
+k8s_yaml('./orders/deployment.yaml')
 
 k8s_resource('mysql', port_forwards=3306)
+k8s_resource('kafka', port_forwards=9092)
 
 load('ext://helm_resource', 'helm_resource', 'helm_repo')
 helm_repo('openfaas-repo', 'https://openfaas.github.io/faas-netes/')
@@ -29,6 +32,7 @@ k8s_custom_deploy(
 
 docker_build('api-gateway', './gateway')
 docker_build('catalog', './catalog')
+docker_build('orders', './orders')
 
 k8s_resource('api-gateway', port_forwards=9000)
 
