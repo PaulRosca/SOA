@@ -61,6 +61,12 @@ server.use(async (req: express.Request, res: express.Response, next: express.Nex
   if(/\/orders\/.*/.test(req.originalUrl) && req.method === "PATCH" && (!req.body || req.body.user?.type !== "admin")) {
     return res.status(401).json("Only admins can update orders");
   }
+  else if(/\/catalog\/.*/.test(req.originalUrl) && req.method === "PATCH" && (!req.body || req.body.user?.type !== "admin")) {
+    return res.status(401).json("Only admins can update product stocks");
+  }
+  else if(/\/catalog\/.*\/stock/.test(req.originalUrl) && req.method === "GET" && (!req.body || req.body.user?.type !== "admin")) {
+    return res.status(401).json("Only admins can query stock");
+  }
   else if(req.originalUrl === '/catalog/' && req.method === "POST" && (!req.body || req.body.user?.type !== "admin")) {
     return res.status(401).json("Only admins can add products");
   }

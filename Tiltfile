@@ -12,6 +12,8 @@ k8s_yaml('./orders/deployment.yaml')
 k8s_resource('mysql', port_forwards=3306)
 k8s_resource('kafka', port_forwards=9092)
 
+local_resource(name='openfaas-namespace', cmd='kubectl create namespace openfaas;kubectl create namespace openfaas-fn')
+
 load('ext://helm_resource', 'helm_resource', 'helm_repo')
 helm_repo('openfaas-repo', 'https://openfaas.github.io/faas-netes/')
 helm_resource('openfaas', 'openfaas/openfaas', resource_deps=['openfaas-repo'],namespace='openfaas')

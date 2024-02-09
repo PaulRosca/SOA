@@ -30,17 +30,46 @@ func getProductImage(c *gin.Context) {
 	c.Writer.Write(image)
 }
 
+type Body struct {
+	Stock int64 `json:"stock"`
+}
+
+func updateProductStock(c *gin.Context) {
+	id := c.Param("id")
+	var body Body
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	_, err := DB.Exec("UPDATE product SET stock = ? WHERE id = ?", body.Stock, id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.IndentedJSON(http.StatusOK, "Updated stock successfully!")
+}
+
+func getProductStock(c *gin.Context) {
+	id := c.Param("id")
+	var quantity int64
+	if err := DB.QueryRow("SELECT stock FROM product WHERE id = ?", id).Scan(&quantity); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.IndentedJSON(http.StatusOK, quantity)
+}
+
 func getProducts(c *gin.Context) {
-        qids := c.Query("ids")
-        ids := []any{}
-        var sb strings.Builder
-        sb.WriteString("SELECT id, title, description, category, stock, price FROM product WHERE stock > 0")
-        if qids != "" {
-                for _, id := range(strings.Split(qids, ",")) {
-                        ids = append(ids, id)
-                }
-                sb.WriteString(" AND id IN (?" + strings.Repeat(",?", len(ids) - 1) + ")")
-        }
+	qids := c.Query("ids")
+	ids := []any{}
+	var sb strings.Builder
+	sb.WriteString("SELECT id, title, description, category, stock, price FROM product WHERE stock > 0")
+	if qids != "" {
+		for _, id := range strings.Split(qids, ",") {
+			ids = append(ids, id)
+		}
+		sb.WriteString(" AND id IN (?" + strings.Repeat(",?", len(ids)-1) + ")")
+	}
 	products := make([]Product, 0)
 	rows, err := DB.Query(sb.String(), ids...)
 	if err != nil {
@@ -68,17 +97,17 @@ func addProduct(c *gin.Context) {
 	}
 	file, _, err := c.Request.FormFile("image")
 	if file == nil {
-                c.IndentedJSON(http.StatusBadRequest, "Missing 'image' field!")
-                return
+		c.IndentedJSON(http.StatusBadRequest, "Missing 'image' field!")
+		return
 	}
 	defer file.Close()
 	if err != nil {
-                c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	buf := bytes.NewBuffer(nil)
 	if _, err := io.Copy(buf, file); err != nil {
-                c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 	newProduct.image = buf.Bytes()
@@ -104,7 +133,9 @@ func main() {
 
 	router.GET("/image/:id", getProductImage)
 	router.GET("/", getProducts)
+	router.GET("/:id/stock", getProductStock)
 	router.POST("/", addProduct)
+	router.PATCH("/:id", updateProductStock)
 
 	router.Run("0.0.0.0:5555")
 }
