@@ -47,6 +47,7 @@ func getOrders(c *gin.Context) {
 		ordersQuery.WriteString(" WHERE user_id = ?")
 		ids = append(ids, body.User.ID)
 	}
+	ordersQuery.WriteString(" ORDER BY timestamp ASC;")
 	orders := make([]Order, 0)
 	rows, err := DB.Query(ordersQuery.String(), ids...)
 	if err != nil {
@@ -78,6 +79,25 @@ func getOrders(c *gin.Context) {
 		orders = append(orders, order)
 	}
 	c.IndentedJSON(http.StatusOK, orders)
+}
+
+type StatusBody struct {
+	Status string `json:"status"`
+}
+
+func changeStatus(c *gin.Context) {
+	id := c.Param("id")
+	var statusBody StatusBody
+	if err := c.ShouldBind(&statusBody); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	_, err := DB.Exec("UPDATE orders SET status = ? WHERE id = ?", statusBody.Status, id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.IndentedJSON(http.StatusOK, "Updated Order Status")
 }
 
 func addOrder(producer sarama.SyncProducer) gin.HandlerFunc {
@@ -135,6 +155,7 @@ func main() {
 
 	router.GET("/", getOrders)
 	router.POST("/", addOrder(producer))
+	router.PATCH("/:id", changeStatus)
 
 	router.Run("0.0.0.0:6666")
 }
