@@ -58,10 +58,10 @@ server.use(async (req: express.Request, res: express.Response, next: express.Nex
     console.log(err);
   }
   console.log('PATH', req.originalUrl);
-  if(/\/orders\/.*/.test(req.originalUrl) && req.method === "PATCH" && (!req.body || req.body.type !== "admin")) {
+  if(/\/orders\/.*/.test(req.originalUrl) && req.method === "PATCH" && (!req.body || req.body.user?.type !== "admin")) {
     return res.status(401).json("Only admins can update orders");
   }
-  else if(req.originalUrl === '/catalog/' && req.method === "POST" && (!req.body || req.body.type !== "admin")) {
+  else if(req.originalUrl === '/catalog/' && req.method === "POST" && (!req.body || req.body.user?.type !== "admin")) {
     return res.status(401).json("Only admins can add products");
   }
   return next();
