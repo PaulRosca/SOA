@@ -5,6 +5,7 @@ k8s_yaml('mysql-storage.yaml')
 k8s_yaml('mysql-deployment.yaml')
 k8s_yaml('kafka.yaml')
 k8s_yaml('./gateway/deployment.yaml')
+k8s_yaml('./emails/deployment.yaml')
 k8s_yaml('./catalog/deployment.yaml')
 k8s_yaml('./orders/deployment.yaml')
 
@@ -34,6 +35,7 @@ k8s_custom_deploy(
 )
 
 docker_build('api-gateway', './gateway')
+docker_build('emails', './emails')
 docker_build('catalog', './catalog')
 docker_build('orders', './orders')
 

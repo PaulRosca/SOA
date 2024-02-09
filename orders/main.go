@@ -9,6 +9,7 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/gin-gonic/gin"
+	"github.com/streadway/amqp"
 )
 
 type Notification struct {
@@ -100,7 +101,7 @@ func changeStatus(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, "Updated Order Status")
 }
 
-func addOrder(producer sarama.SyncProducer) gin.HandlerFunc {
+func addOrder(producer sarama.SyncProducer, channel *amqp.Channel) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var orderReq OrderRequest
 		if err := c.ShouldBind(&orderReq); err != nil {
@@ -140,6 +141,12 @@ func addOrder(producer sarama.SyncProducer) gin.HandlerFunc {
 				return
 			}
 		}
+		messageData, _ := json.Marshal(orderReq)
+		if err := sendRabbitMessage(channel, string(messageData)); err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, err.Error())
+			return
+		}
+
 		c.IndentedJSON(http.StatusCreated, orderReq)
 	}
 }
@@ -151,10 +158,13 @@ func main() {
 	}
 	defer producer.Close()
 	connectDB()
+	connection, channel := connectToRabbit()
+	defer channel.Close()
+	defer connection.Close()
 	router := gin.Default()
 
 	router.GET("/", getOrders)
-	router.POST("/", addOrder(producer))
+	router.POST("/", addOrder(producer, channel))
 	router.PATCH("/:id", changeStatus)
 
 	router.Run("0.0.0.0:6666")

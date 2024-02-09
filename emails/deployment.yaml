@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emails
+  labels:
+    app: emails
+spec:
+  selector:
+    matchLabels:
+      app: emails
+  template:
+    metadata:
+      labels:
+        app: emails
+    spec:
+      containers:
+        - name: emails
+          image: emails:latest
+          ports:
+            - containerPort: 7777
