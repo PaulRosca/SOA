@@ -15,6 +15,9 @@ load('ext://helm_resource', 'helm_resource', 'helm_repo')
 helm_repo('openfaas-repo', 'https://openfaas.github.io/faas-netes/')
 helm_resource('openfaas', 'openfaas/openfaas', resource_deps=['openfaas-repo'],namespace='openfaas')
 
+k8s_yaml('rabbitmq.yaml')
+k8s_resource('rabbitmq', port_forwards='15672')
+
 apply_cmd = """
 echo $(kubectl -n openfaas get secret basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode) | faas-cli login -u admin --password-stdin 1>&2 &&
 faas-cli up -f stack.yml 1>&2
